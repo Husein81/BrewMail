@@ -1,15 +1,25 @@
-import os
 import sys
 import time
 import yaml
 from pathlib import Path
 from dataclasses import dataclass
 
+MODE = sys.argv[1] if len(sys.argv) > 1 else "full"
+FLAGS = {
+    "full":       dict(use_hybrid=True,  use_rerank=True),
+    "no_rerank":  dict(use_hybrid=True,  use_rerank=False),
+    "no_hybrid":  dict(use_hybrid=False, use_rerank=True),
+    "baseline":   dict(use_hybrid=False, use_rerank=False),
+}[MODE]
+
 # Make sure we can import your rag.py
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from rag import hybrid_retrieve, rerank, answer, GENERATION_MODEL, client
+from rag import hybrid_retrieve, retrieve, rerank, answer, GENERATION_MODEL, client
 from google.genai import types
 from pydantic import BaseModel, Field
+from utils.throttled_generated_content import _throttled_generate_content, get_waited_s
+
+client.models.generate_content = _throttled_generate_content
 
 
 @dataclass
@@ -79,9 +89,13 @@ def run_case(case: dict) -> CaseResult:
     reference = case.get("reference_answer")
 
     t0 = time.perf_counter()
+    waited0 = get_waited_s()
 
     # Run retrieval directly so we can inspect chunk IDs separately from the answer
-    candidates = hybrid_retrieve(question, top_k=10)
+    if FLAGS["use_hybrid"]:
+        candidates = hybrid_retrieve(question, top_k=10)
+    else:
+        candidates = retrieve(question, top_k=10)
     retrieved_ids = [c["id"] for c in candidates]
 
     # Retrieval hit check
@@ -94,8 +108,9 @@ def run_case(case: dict) -> CaseResult:
             break
 
     # Generate the actual answer via your pipeline
-    answer_text = answer(question)
-    latency_ms = int((time.perf_counter() - t0) * 1000)
+    answer_text = answer(question, **FLAGS)
+    # Exclude time spent sleeping for rate limits
+    latency_ms = int((time.perf_counter() - t0 - (get_waited_s() - waited0)) * 1000)
 
     # String checks
     answer_lower = answer_text.lower()

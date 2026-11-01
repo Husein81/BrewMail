@@ -342,24 +342,36 @@ Only refuse when the docs do not contain the information needed for the inferenc
 """
 
 
-def answer(user_question: str, where: dict | None = None) -> str:
-    candidates = hybrid_retrieve(user_question, top_k=10, where=where, min_similarity=0.4)
-
-    print(f"\n  [HYBRID] {len(candidates)} candidates")
-    for c in candidates:
-        sem = c.get("semantic_rank", "-")
-        kw = c.get("keyword_rank", "-")
-        print(f"    rrf={c['rrf_score']:.4f}  sem#{sem} kw#{kw}  {c['doc_title']} — {c['section']}")
-
+def answer(user_question: str, where: dict | None = None, use_hybrid=False, use_rerank=True) -> str:
+    if use_hybrid:
+        candidates = hybrid_retrieve(user_question, top_k=10, where=where, min_similarity=0.4)
+    else:
+        candidates = retrieve(user_question, top_k=10, where=where, min_similarity=0.4)
     if not candidates:
         return "I don't have information on that. Please contact support@brewmail.com."
 
-    reranked = rerank(user_question, candidates)[:3]
+    label = "HYBRID" if use_hybrid else "SEMANTIC"
+    print(f"\n  [{label}] {len(candidates)} candidates")
+    for c in candidates:
+        if use_hybrid:
+            sem = c.get("semantic_rank", "-")
+            kw = c.get("keyword_rank", "-")
+            print(f"    rrf={c['rrf_score']:.4f}  sem#{sem} kw#{kw}  {c['doc_title']} — {c['section']}")
+        else:
+            print(f"    sim={c['score']:.4f}  {c['doc_title']} — {c['section']}")
 
-    print(f"  [RERANKED → {len(reranked)}]")
-    for r in reranked:
-        print(f"    [{r['rerank_label']}]  {r['doc_title']} — {r['section']}")
-        print(f"       reason: {r['rerank_reasoning']}")
+    if use_rerank:
+        reranked = rerank(user_question, candidates)
+        highly = [r for r in reranked if r["rerank_label"] == "HIGHLY_RELEVANT"]
+        somewhat = [r for r in reranked if r["rerank_label"] == "SOMEWHAT_RELEVANT"]
+        # Keep every HIGHLY chunk (capped at 5), fill up to 3 with SOMEWHAT.
+        reranked = highly[:5] + somewhat[:max(0, 3 - len(highly))]
+        print(f"  [RERANKED → {len(reranked)}]")
+        for r in reranked:
+            print(f"    [{r['rerank_label']}]  {r['doc_title']} — {r['section']}")
+            print(f"       reason: {r['rerank_reasoning']}")
+    else:
+        reranked = candidates[:3]
 
     if not reranked:
         return "I don't have information on that. Please contact support@brewmail.com."

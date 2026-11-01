@@ -55,3 +55,49 @@
   expected_chunks: ["cancellation_policy-4", "pause_policy-5"]
   must_mention: []
   must_not_mention: []
+
+- id: paraphrase_break
+  question: "Can I take a break from deliveries?"
+  type: grounded
+  expected_chunks: ["pause_policy-1", "pause_policy-3"]
+  must_mention: ["pause"]
+  must_not_mention: []
+  reference_answer: "Yes. You can pause your subscription at any time from your account dashboard without cancelling it."
+
+- id: paraphrase_money_back
+  question: "Can I get my money back if I don't like my coffee?"
+  type: grounded
+  expected_chunks: ["refund_policy-2"]
+  must_mention: ["14"]
+  must_not_mention: []
+  reference_answer: "Yes. Within 14 days of delivery, email support@brewmail.com to request a full refund under the 14-day satisfaction guarantee."
+
+- id: typo_refund
+  question: "refnd policy"
+  type: grounded
+  expected_chunks: ["refund_policy-2", "refund_policy-3", "refund_policy-4"]
+  must_mention: ["14"]
+  must_not_mention: []
+  reference_answer: "BrewMail offers a 14-day satisfaction guarantee; refunds are processed as described in the policy, and some items are not covered."
+
+- id: pause_and_resume
+  question: "how do I pause and when does it resume?"
+  type: grounded
+  expected_chunks: ["pause_policy-2", "pause_policy-3", "pause_policy-4"]
+  must_mention: ["resume"]
+  must_not_mention: []
+  reference_answer: "Log in, go to Subscription Settings, click Pause Subscription, optionally choose a resume date, and confirm. You can resume any time with Resume Subscription, and if you reach the 90-day cap the subscription automatically resumes on day 91 with your next scheduled shipment."
+
+- id: espresso_machines
+  question: "do you sell espresso machines?"
+  type: refusal
+  expected_chunks: []
+  must_mention: ["support@brewmail.com"]
+  must_not_mention: []
+
+- id: ceo_name
+  question: "what's your CEO's name?"
+  type: refusal
+  expected_chunks: []
+  must_mention: ["support@brewmail.com"]
+  must_not_mention: []
