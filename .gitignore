@@ -1,0 +1,34 @@
+# Created by venv; see https://docs.python.org/3/library/venv.html
+
+# --- Virtual environment files (this folder is also the venv) ---
+Include/
+Lib/
+Scripts/
+Share/
+share/
+pyvenv.cfg
+
+# --- Secrets ---
+.env
+.env.*
+!.env.example
+
+# --- Local vector store ---
+chroma_db/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- Eval run output ---
+evals/results-*.json
+
+# --- Editors / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

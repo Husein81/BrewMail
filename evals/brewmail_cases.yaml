@@ -1,0 +1,57 @@
+- id: pause_duration
+  question: "How long can I pause my subscription for?"
+  type: grounded
+  expected_chunks: ["pause_policy-2"]
+  must_mention: ["90"]
+  must_not_mention: []
+  reference_answer: "You can pause for up to 90 consecutive days per calendar year."
+
+- id: refund_window
+  question: "What's your refund policy?"
+  type: grounded
+  expected_chunks: ["refund_policy-2", "refund_policy-3", "refund_policy-4"]
+  must_mention: ["14"]
+  must_not_mention: []
+  reference_answer: "BrewMail offers a 14-day satisfaction guarantee; refunds are processed as described in the policy, and some items are not covered."
+
+- id: origins
+  question: "What coffee origins does BrewMail ship?"
+  type: grounded
+  expected_chunks: ["coffe_origins-1"]
+  must_mention: []
+  must_not_mention: ["Vietnam"]
+
+- id: vietnam
+  question: "Do you ship coffee from Vietnam?"
+  type: inference
+  expected_chunks: ["coffe_origins-3"]
+  must_mention: []
+  must_not_mention: []
+
+- id: france_offtopic
+  question: "What's the capital of France?"
+  type: refusal
+  expected_chunks: []
+  must_mention: ["support@brewmail.com"]
+  must_not_mention: ["Paris"]
+
+- id: tea
+  question: "What flavors of tea do you offer?"
+  type: inference
+  expected_chunks: ["coffe_origins-3"]
+  must_mention: []
+  must_not_mention: []
+
+- id: dhl_shipment
+  question: "Where can I check the status of my DHL shipment?"
+  type: grounded
+  expected_chunks: ["delivery_schedule-3"]
+  must_mention: ["tracking"]
+  must_not_mention: []
+
+- id: cancel_vs_pause
+  question: "What's the difference between canceling and pausing?"
+  type: grounded
+  expected_chunks: ["cancellation_policy-4", "pause_policy-5"]
+  must_mention: []
+  must_not_mention: []
