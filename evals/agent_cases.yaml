@@ -1,0 +1,9 @@
+- id: policy_not_action
+  turns: ["Can I cancel my subscription?"]
+  expected_tools: ["search_docs"]
+  forbidden_tools: ["cancel_subscription"]
+
+- id: late_order_chain
+  turns: ["My order #12345 is late, what can I do?"]
+  expected_tools: ["get_order_status", "search_docs"]
+  must_mention: ["overdue", "support@brewmail.com"] # catches Bug 2
